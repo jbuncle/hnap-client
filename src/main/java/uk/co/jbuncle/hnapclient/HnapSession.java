@@ -3,16 +3,8 @@
  */
 package uk.co.jbuncle.hnapclient;
 
-import uk.co.jbuncle.hnapclient.exceptions.HnapClientException;
-import java.io.UnsupportedEncodingException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Date;
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import org.apache.commons.codec.digest.HmacUtils;
-import static uk.co.jbuncle.hnapclient.util.EncryptionUtility.AES_Encrypt128;
 
 /**
  *
@@ -58,14 +50,5 @@ public class HnapSession {
         final int timestamp = Math.round(currentTime.getTime() / 1000);
         final String auth = this.hexHmacMd5(this.getPrivateKey(), timestamp + soapAction);
         return auth.toUpperCase() + ' ' + timestamp;
-    }
-
-    private String encrypt(final String string) throws HnapClientException {
-        try {
-            return AES_Encrypt128(string, this.getPrivateKey());
-        }
-        catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | UnsupportedEncodingException | IllegalBlockSizeException | BadPaddingException ex) {
-            throw new HnapClientException(ex);
-        }
     }
 }
