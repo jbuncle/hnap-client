@@ -35,4 +35,12 @@ public class HnapRequestException extends HnapClientException {
         this.responseBody = responseBody;
     }
 
+    public String getRequestBody() {
+        return requestBody;
+    }
+
+    public String getResponseBody() {
+        return responseBody;
+    }
+
 }

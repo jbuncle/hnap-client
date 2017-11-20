@@ -27,6 +27,15 @@ public class HnapClient {
     private static final String HNAP_LOGIN_METHOD = "Login";
     private static final String LOGINRESULT = "LoginResult";
 
+    private static final String LOGINREQUEST_ACTION = "Action";
+    private static final String LOGINREQUEST_USERNAME = "Username";
+    private static final String LOGINREQUEST_LOGINPASSWORD = "LoginPassword";
+    private static final String LOGINREQUEST_CAPTCHA = "Captcha";
+
+    private static final String LOGINRESPONSE_CHALLENGE = "Challenge";
+    private static final String LOGINRESPONSE_PUBLICKEY = "PublicKey";
+    private static final String LOGINRESPONSE_COOKIE = "Cookie";
+
     private final BasicSoapClient soapClient;
     private final URL url;
     private final String username;
@@ -67,16 +76,34 @@ public class HnapClient {
                 default:
                     throw new HnapAuthenticationException("Unexpected login result " + loginResult);
             }
-        } catch (XMLException ex) {
+        }
+        catch (XMLException ex) {
             throw new HnapClientException(ex);
         }
     }
 
-    private HnapSession parseSession(final String body) throws XMLException {
+    public Map<String, Object> request(
+            final HnapSession hnapSession,
+            final String method,
+            final Map<String, Object> body
+    ) throws HnapClientException {
+        try {
+            final String bodyXml = XmlToObject.toXml(body);
+            final String response = this.hnapRequest(hnapSession, method, bodyXml);
+            return XmlToObject.fromXml(response);
+        }
+        catch (XMLException ex) {
+            throw new HnapClientException(ex);
+        }
+    }
+
+    private HnapSession parseSession(
+            final String body
+    ) throws XMLException {
         final Map<String, Object> properties = XmlToObject.fromXml(body);
-        final String challenge = (String) properties.get("Challenge");
-        final String publicKey = (String) properties.get("PublicKey");
-        final String cookie = (String) properties.get("Cookie");
+        final String challenge = (String) properties.get(LOGINRESPONSE_CHALLENGE);
+        final String publicKey = (String) properties.get(LOGINRESPONSE_PUBLICKEY);
+        final String cookie = (String) properties.get(LOGINRESPONSE_COOKIE);
 
         return new HnapSession(this.password, challenge, publicKey, cookie);
     }
@@ -109,25 +136,12 @@ public class HnapClient {
         return this.soapRequest(url, headers, method, body);
     }
 
-    public Map<String, Object> request(
-            final HnapSession hnapSession,
-            final String method,
-            final Map<String, Object> body
-    ) throws HnapClientException {
-        try {
-            final String response = this.hnapRequest(hnapSession, method, XmlToObject.toXml(body));
-            return XmlToObject.fromXml(response);
-        } catch (XMLException ex) {
-            throw new HnapClientException(ex);
-        }
-    }
-
     private Map<String, Object> loginRequest() {
         final Map<String, Object> properties = new HashMap<>();
-        properties.put("Action", "login");
-        properties.put("Username", this.username);
-        properties.put("LoginPassword", "");
-        properties.put("Captcha", "");
+        properties.put(LOGINREQUEST_ACTION, "login");
+        properties.put(LOGINREQUEST_USERNAME, this.username);
+        properties.put(LOGINREQUEST_LOGINPASSWORD, "");
+        properties.put(LOGINREQUEST_CAPTCHA, "");
         return properties;
     }
 
@@ -143,27 +157,6 @@ public class HnapClient {
         return loginParams;
     }
 
-    protected <T> T performRequest(
-            final String method,
-            final Class<T> responseClass,
-            final Object requestBody
-    ) throws HnapClientException {
-        try {
-            return performRequest(method, responseClass, XMLUtility.marshall(requestBody));
-        } catch (XMLException ex) {
-            throw new HnapClientException(ex);
-        }
-    }
-
-    private <T> T performRequest(
-            final String method,
-            final Class<T> responseClass,
-            final Document requestBody
-    ) throws HnapClientException, XMLException {
-        final String xmlString = XMLUtility.toString(requestBody);
-        return performRequest(method, responseClass, xmlString);
-    }
-
     private String soapRequest(
             final URL url,
             final Map<String, String> headers,
@@ -176,7 +169,8 @@ public class HnapClient {
         try {
             // Check response is valid XML
             XMLUtility.loadXML(wrappedBody);
-        } catch (XMLException ex) {
+        }
+        catch (XMLException ex) {
             throw new HnapRequestException("Request contains invalid XML", ex, requestBody, responseBody);
         }
 
@@ -185,7 +179,8 @@ public class HnapClient {
         try {
             // Check response is valid XML
             XMLUtility.loadXML(responseBody);
-        } catch (XMLException ex) {
+        }
+        catch (XMLException ex) {
             throw new HnapRequestException("Response contained invalid XML", ex, requestBody, responseBody);
         }
         return responseBody;

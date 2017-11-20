@@ -41,7 +41,7 @@ import org.xml.sax.SAXException;
  */
 public class XMLUtility {
 
-    public static String toString(Node node) throws XMLException {
+    public static String toString(final Node node) throws XMLException {
         try {
             final TransformerFactory tf = TransformerFactory.newInstance();
             final Transformer transformer = tf.newTransformer();
@@ -49,7 +49,8 @@ public class XMLUtility {
             final StringWriter writer = new StringWriter();
             transformer.transform(new DOMSource(node), new StreamResult(writer));
             return writer.getBuffer().toString().replaceAll("\n|\r", "");
-        } catch (TransformerException ex) {
+        }
+        catch (TransformerException ex) {
             throw new XMLException(ex);
         }
     }
@@ -62,18 +63,8 @@ public class XMLUtility {
             final DocumentBuilder builder = factory.newDocumentBuilder();
             final InputSource is = new InputSource(new StringReader(xml));
             return builder.parse(is);
-        } catch (ParserConfigurationException | SAXException | IOException ex) {
-            throw new XMLException(ex);
         }
-    }
-
-    public static Document loadXML(final File file) throws XMLException {
-        try {
-            final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            final DocumentBuilder builder = factory.newDocumentBuilder();
-            final InputSource is = new InputSource(new FileReader(file));
-            return builder.parse(is);
-        } catch (ParserConfigurationException | SAXException | IOException ex) {
+        catch (ParserConfigurationException | SAXException | IOException ex) {
             throw new XMLException(ex);
         }
     }
@@ -93,10 +84,10 @@ public class XMLUtility {
         final DOMConfiguration c = lsSerializer.getDomConfig();
         c.setParameter("format-pretty-print", false);
         c.setParameter("xml-declaration", false);
-        final NodeList childNodes = node.getChildNodes();
+
         final StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < childNodes.getLength(); i++) {
-            sb.append(lsSerializer.writeToString(childNodes.item(i)));
+        for (Element childElement : getChildElements(node)) {
+            sb.append(lsSerializer.writeToString(childElement));
         }
         return sb.toString();
     }
@@ -108,51 +99,21 @@ public class XMLUtility {
         try {
             final JAXBContext jaxbContext = JAXBContext.newInstance(object.getClass());
 
-            Marshaller m = jaxbContext.createMarshaller();
+            final Marshaller m = jaxbContext.createMarshaller();
             m.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
 
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             dbf.setNamespaceAware(true);
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            Document doc = db.newDocument();
+            final DocumentBuilder db = dbf.newDocumentBuilder();
+            final Document doc = db.newDocument();
 
             m.marshal(object, doc);
 
             return doc;
-        } catch (ParserConfigurationException | JAXBException ex) {
+        }
+        catch (ParserConfigurationException | JAXBException ex) {
             throw new XMLException(ex);
         }
-    }
-
-    public static <T> T unmarshall(
-            final Class<T> clazz,
-            final String xml
-    ) throws XMLException {
-        try {
-            final JAXBContext jaxbContext = JAXBContext.newInstance(clazz);
-            final Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-            return (T) jaxbUnmarshaller.unmarshal(new StringReader(xml));
-        } catch (final JAXBException e) {
-            throw new XMLException(e);
-        }
-    }
-
-    public static List<Element> getChildElements(final Node element, final String name) {
-        final List<Element> children = new LinkedList<>();
-        getChildElements(element).stream()
-                .filter((childElement) -> (childElement.getTagName().equals(name)))
-                .forEachOrdered((childElement) -> {
-                    children.add(childElement);
-                });
-        return children;
-    }
-
-    public static Collection<Element> getChildElementsUnique(final Element element) {
-        final LinkedHashMap<String, Element> map = new LinkedHashMap<>();
-        getChildElements(element).forEach((childElement) -> {
-            map.put(childElement.getTagName(), childElement);
-        });
-        return map.values();
     }
 
     public static List<Element> getChildElements(final Node element) {

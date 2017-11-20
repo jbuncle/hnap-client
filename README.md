@@ -23,7 +23,7 @@ The Maven setup is:
         ...
 	<dependency>
 	    <groupId>com.github.jbuncle</groupId>
-	    <artifactId>master</artifactId>
+	    <artifactId>hnap-client</artifactId>
 	    <version>master</version>
 	</dependency>
 ```
