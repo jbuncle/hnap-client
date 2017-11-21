@@ -36,7 +36,7 @@ public class BasicSoapClient {
                 + "</soap:Body></soap:Envelope>";
     }
 
-    public String soapRequest(
+    public String soapPost(
             final URL url,
             final String soapAction,
             final Map<String, String> headers,
@@ -47,6 +47,20 @@ public class BasicSoapClient {
             headers.put("Content-Type", "text/xml; charset=utf-8");
             headers.put("SOAPAction", '"' + soapAction + '"');
             String result = this.httpClient.post(url.toString(), headers, soapBody);
+            return getSoapBody(result);
+        }
+        catch (XMLException | IOException | UnsupportedOperationException ex) {
+            throw new HnapClientException(ex);
+        }
+    }
+
+    public String soapGet(
+            final URL url,
+            final Map<String, String> headers
+    ) throws HnapClientException {
+        try {
+            headers.put("Content-Type", "text/xml; charset=utf-8");
+            String result = this.httpClient.get(url.toString(), headers);
             return getSoapBody(result);
         }
         catch (XMLException | IOException | UnsupportedOperationException ex) {

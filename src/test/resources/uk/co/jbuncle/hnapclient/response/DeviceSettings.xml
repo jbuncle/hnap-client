@@ -1,0 +1,26 @@
+
+<GetDeviceSettingsResponse xmlns="http://purenetworks.com/HNAP1/">
+    <GetDeviceSettingsResult>OK</GetDeviceSettingsResult>
+    <Type>ConnectedHomeClient</Type>
+    <DeviceName>DLINK Hub</DeviceName>
+    <VendorName>D-Link</VendorName>
+    <ModelDescription>D-Link ConnectedHome Gateway</ModelDescription>
+    <ModelName>DCH-0000</ModelName>
+    <DeviceMacId>00:00:00:00:00:00</DeviceMacId>
+    <FirmwareVersion>1.11</FirmwareVersion>
+    <FirmwareRegion>Default</FirmwareRegion>
+    <LatestFirmwareVersion/>
+    <HardwareVersion>A1</HardwareVersion>
+    <HNAPVersion>0111</HNAPVersion>
+    <PresentationURL>http://dlink.local</PresentationURL>
+    <CAPTCHA>false</CAPTCHA>
+    <ModuleTypes>
+        <string>Gateway</string>
+        <string>Motion Sensor</string>
+    </ModuleTypes>
+    <SOAPActions>
+        <string>http://purenetworks.com/HNAP1/Reboot</string>
+        <string>http://purenetworks.com/HNAP1/SetFactoryDefault</string>
+    </SOAPActions>
+    <SubDeviceURLs/>
+</GetDeviceSettingsResponse>

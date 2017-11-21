@@ -3,14 +3,16 @@
  */
 package uk.co.jbuncle.hnapclient;
 
+import java.net.MalformedURLException;
 import uk.co.jbuncle.hnapclient.exceptions.HnapRequestException;
 import uk.co.jbuncle.hnapclient.exceptions.HnapClientException;
 import uk.co.jbuncle.hnapclient.exceptions.HnapAuthenticationException;
 import uk.co.jbuncle.hnapclient.soap.BasicSoapClient;
 import java.util.HashMap;
 import java.util.Map;
-import org.w3c.dom.Document;
 import java.net.URL;
+import uk.co.jbuncle.hnapclient.response.DeviceSettingsI;
+import uk.co.jbuncle.hnapclient.response.DeviceSettingsParser;
 import uk.co.jbuncle.hnapclient.util.xml.XMLException;
 import uk.co.jbuncle.hnapclient.util.xml.XMLUtility;
 import uk.co.jbuncle.hnapclient.util.xml.XmlToObject;
@@ -51,6 +53,18 @@ public class HnapClient {
         this.url = url;
         this.username = username;
         this.password = password;
+    }
+
+    public DeviceSettingsI discover() throws HnapClientException {
+        final Map<String, String> headers = new HashMap<>();
+        final String response = this.soapClient.soapGet(url, headers);
+        try {
+            final Map<String, Object> responseProperties = XmlToObject.fromXml(response);
+            return DeviceSettingsParser.createFromResponse(responseProperties);
+        }
+        catch (XMLException | MalformedURLException ex) {
+            throw new HnapClientException(ex);
+        }
     }
 
     public HnapSession login() throws HnapClientException {
@@ -174,7 +188,7 @@ public class HnapClient {
             throw new HnapRequestException("Request contains invalid XML", ex, requestBody, responseBody);
         }
 
-        responseBody = this.soapClient.soapRequest(url, HnapClient.HNAP1_XMLNS + method, headers, wrappedBody);
+        responseBody = this.soapClient.soapPost(url, HnapClient.HNAP1_XMLNS + method, headers, wrappedBody);
 
         try {
             // Check response is valid XML

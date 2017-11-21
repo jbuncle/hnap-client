@@ -21,7 +21,7 @@ public class XmlToObject {
         return (Map<String, Object>) fromXml(doc.getDocumentElement());
     }
 
-    public static Object fromXml(final Element element) throws XMLException {
+    private static Object fromXml(final Element element) throws XMLException {
 
         final List<Element> childElements = XMLUtility.getChildElements(element);
         if (childElements.isEmpty()) {
@@ -60,6 +60,9 @@ public class XmlToObject {
     public static String toXml(Map<String, Object> map) {
         StringBuilder sb = new StringBuilder();
 
+        if (map == null) {
+            return "";
+        }
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             sb.append("<").append(entry.getKey()).append(">");
             if (entry.getValue() instanceof Map) {
