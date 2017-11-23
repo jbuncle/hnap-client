@@ -1,16 +1,15 @@
 /*
  * James Buncle 2017
  */
-package uk.co.jbuncle.hnapclient;
+package uk.co.jbuncle.hnapclient.session;
 
-import uk.co.jbuncle.hnapclient.interfaces.TimestampProviderI;
 import java.util.Date;
 
 /**
  *
  * @author James Buncle <jbuncle@hotmail.com>
  */
-class TimestampProvider implements TimestampProviderI {
+public class TimestampProvider implements TimestampProviderI {
 
     @Override
     public int getTimestampSeconds() {

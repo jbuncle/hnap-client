@@ -3,6 +3,7 @@
  */
 package uk.co.jbuncle.hnapclient.interfaces;
 
+import uk.co.jbuncle.hnapclient.session.HnapSessionI;
 import java.util.Map;
 import uk.co.jbuncle.hnapclient.exceptions.HnapClientException;
 import uk.co.jbuncle.hnapclient.response.DeviceSettingsI;

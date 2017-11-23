@@ -3,13 +3,12 @@
  */
 package uk.co.jbuncle.hnapclient.soap;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.Map;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import uk.co.jbuncle.hnapclient.exceptions.HnapClientException;
-import uk.co.jbuncle.hnapclient.http.HttpClient;
+import uk.co.jbuncle.hnapclient.http.HttpClientI;
+import uk.co.jbuncle.hnapclient.http.HttpException;
 import uk.co.jbuncle.hnapclient.util.xml.XMLException;
 import uk.co.jbuncle.hnapclient.util.xml.XMLUtility;
 
@@ -19,9 +18,9 @@ import uk.co.jbuncle.hnapclient.util.xml.XMLUtility;
  */
 public class BasicSoapClient {
 
-    private final HttpClient httpClient;
+    private final HttpClientI httpClient;
 
-    public BasicSoapClient(final HttpClient httpClient) {
+    public BasicSoapClient(final HttpClientI httpClient) {
         this.httpClient = httpClient;
     }
 
@@ -41,7 +40,7 @@ public class BasicSoapClient {
             final String soapAction,
             final Map<String, String> headers,
             final String body
-    ) throws HnapClientException {
+    ) throws SoapException {
         try {
             final String soapBody = this.soapBody(body);
             headers.put("Content-Type", "text/xml; charset=utf-8");
@@ -49,22 +48,22 @@ public class BasicSoapClient {
             String result = this.httpClient.post(url.toString(), headers, soapBody);
             return getSoapBody(result);
         }
-        catch (XMLException | IOException | UnsupportedOperationException ex) {
-            throw new HnapClientException(ex);
+        catch (HttpException | XMLException ex) {
+            throw new SoapException(ex);
         }
     }
 
     public String soapGet(
             final URL url,
             final Map<String, String> headers
-    ) throws HnapClientException {
+    ) throws SoapException {
         try {
             headers.put("Content-Type", "text/xml; charset=utf-8");
             String result = this.httpClient.get(url.toString(), headers);
             return getSoapBody(result);
         }
-        catch (XMLException | IOException | UnsupportedOperationException ex) {
-            throw new HnapClientException(ex);
+        catch (XMLException | HttpException ex) {
+            throw new SoapException(ex);
         }
     }
 

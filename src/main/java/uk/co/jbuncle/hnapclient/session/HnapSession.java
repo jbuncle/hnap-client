@@ -1,10 +1,8 @@
 /*
  * James Buncle 2017
  */
-package uk.co.jbuncle.hnapclient;
+package uk.co.jbuncle.hnapclient.session;
 
-import uk.co.jbuncle.hnapclient.interfaces.TimestampProviderI;
-import uk.co.jbuncle.hnapclient.interfaces.HnapSessionI;
 import org.apache.commons.codec.digest.HmacUtils;
 
 /**

@@ -14,32 +14,32 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
 
 /**
  *
  * @author James Buncle <jbuncle@hotmail.com>
  */
-public class HttpClient {
+public class HttpClient implements HttpClientI {
 
+    @Override
     public String post(final String url, final Map<String, String> headers, final String body)
-            throws UnsupportedEncodingException, IOException, UnsupportedOperationException {
-        final HttpPost post = new HttpPost(url);
-        headers.entrySet().forEach((Map.Entry<String, String> header) -> {
-            post.addHeader(header.getKey(), header.getValue());
-        });
-        StringEntity entity = new StringEntity(body);
-        post.setEntity(entity);
-        org.apache.http.client.HttpClient client = new DefaultHttpClient();
-        HttpResponse response = client.execute(post);
-        if (response.getStatusLine().getStatusCode() != 200) {
-            throw new HttpResponseException(response.getStatusLine().getStatusCode(), response.getStatusLine().getReasonPhrase());
+            throws HttpException {
+        try {
+            final HttpPost post = new HttpPost(url);
+
+            final StringEntity entity = new StringEntity(body);
+            post.setEntity(entity);
+
+            return performRequest(headers, post);
         }
-        return IOUtils.toString(response.getEntity().getContent());
+        catch (IOException | UnsupportedOperationException ex) {
+            throw new HttpException(ex);
+        }
     }
 
+    @Override
     public String get(final String url, final Map<String, String> headers)
-            throws UnsupportedEncodingException, IOException, UnsupportedOperationException {
+            throws HttpException {
         final HttpGet get = new HttpGet(url);
 
         return performRequest(headers, get);
@@ -48,11 +48,16 @@ public class HttpClient {
     private String performRequest(
             final Map<String, String> headers,
             final HttpRequestBase httpRequestBase
-    ) throws IOException, UnsupportedOperationException, HttpResponseException {
-        addHeaders(headers, httpRequestBase);
-        final HttpResponse httpResponse = getResponse(httpRequestBase);
-        checkResponseCode(httpResponse);
-        return getResponseBody(httpResponse);
+    ) throws HttpException {
+        try {
+            addHeaders(headers, httpRequestBase);
+            final HttpResponse httpResponse = getResponse(httpRequestBase);
+            checkResponseCode(httpResponse);
+            return getResponseBody(httpResponse);
+        }
+        catch (UnsupportedOperationException | IOException ex) {
+            throw new HttpException(ex);
+        }
     }
 
     private void setRequestBody(final String body, final HttpPost httpPost) throws UnsupportedEncodingException {
