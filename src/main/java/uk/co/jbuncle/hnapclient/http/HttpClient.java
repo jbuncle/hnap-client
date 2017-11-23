@@ -71,7 +71,7 @@ public class HttpClient {
     }
 
     private HttpResponse getResponse(final HttpRequestBase httpRequestBase) throws IOException {
-        org.apache.http.client.HttpClient client = HttpClientBuilder.create().build();
+        org.apache.http.client.HttpClient client = new DefaultHttpClient();
         final HttpResponse response = client.execute(httpRequestBase);
         return response;
     }

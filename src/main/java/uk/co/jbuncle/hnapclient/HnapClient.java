@@ -3,6 +3,8 @@
  */
 package uk.co.jbuncle.hnapclient;
 
+import uk.co.jbuncle.hnapclient.interfaces.HnapClientI;
+import uk.co.jbuncle.hnapclient.interfaces.HnapSessionI;
 import java.net.MalformedURLException;
 import uk.co.jbuncle.hnapclient.exceptions.HnapRequestException;
 import uk.co.jbuncle.hnapclient.exceptions.HnapClientException;
@@ -11,6 +13,7 @@ import uk.co.jbuncle.hnapclient.soap.BasicSoapClient;
 import java.util.HashMap;
 import java.util.Map;
 import java.net.URL;
+import java.util.LinkedHashMap;
 import uk.co.jbuncle.hnapclient.response.DeviceSettingsI;
 import uk.co.jbuncle.hnapclient.response.DeviceSettingsParser;
 import uk.co.jbuncle.hnapclient.util.xml.XMLException;
@@ -21,7 +24,7 @@ import uk.co.jbuncle.hnapclient.util.xml.XmlToObject;
  *
  * @author James Buncle <jbuncle@hotmail.com>
  */
-public class HnapClient {
+class HnapClient implements HnapClientI {
 
     private static final String LOGINRESULT_FAILED = "failed";
     private static final String LOGINRESULT_SUCCESS = "success";
@@ -55,6 +58,7 @@ public class HnapClient {
         this.password = password;
     }
 
+    @Override
     public DeviceSettingsI discover() throws HnapClientException {
         final Map<String, String> headers = new HashMap<>();
         final String response = this.soapClient.soapGet(url, headers);
@@ -67,7 +71,8 @@ public class HnapClient {
         }
     }
 
-    public HnapSession login() throws HnapClientException {
+    @Override
+    public HnapSessionI login() throws HnapClientException {
         try {
             final Map<String, String> headers = new HashMap<>();
             headers.put("Content-Type", "text/xml; charset=utf-8");
@@ -75,7 +80,7 @@ public class HnapClient {
 
             final String loginInitProperties = XmlToObject.toXml(this.loginRequest());
             final String response = this.soapRequest(url, headers, HnapClient.HNAP_LOGIN_METHOD, loginInitProperties);
-            final HnapSession session = this.parseSession(response);
+            final HnapSessionI session = this.parseSession(response);
 
             final Map<String, Object> loginProperties = this.loginParameters(session);
             final Map<String, Object> responseProperties = this.request(session, HnapClient.HNAP_LOGIN_METHOD, loginProperties);
@@ -96,8 +101,9 @@ public class HnapClient {
         }
     }
 
+    @Override
     public Map<String, Object> request(
-            final HnapSession hnapSession,
+            final HnapSessionI hnapSession,
             final String method,
             final Map<String, Object> body
     ) throws HnapClientException {
@@ -111,7 +117,7 @@ public class HnapClient {
         }
     }
 
-    private HnapSession parseSession(
+    private HnapSessionI parseSession(
             final String body
     ) throws XMLException {
         final Map<String, Object> properties = XmlToObject.fromXml(body);
@@ -119,7 +125,7 @@ public class HnapClient {
         final String publicKey = (String) properties.get(LOGINRESPONSE_PUBLICKEY);
         final String cookie = (String) properties.get(LOGINRESPONSE_COOKIE);
 
-        return new HnapSession(this.password, challenge, publicKey, cookie);
+        return new HnapSession(new TimestampProvider(), this.password, challenge, publicKey, cookie);
     }
 
     /**
@@ -140,7 +146,7 @@ public class HnapClient {
     }
 
     private String hnapRequest(
-            final HnapSession hnapSession,
+            final HnapSessionI hnapSession,
             final String method,
             final String body
     ) throws HnapClientException {
@@ -151,8 +157,8 @@ public class HnapClient {
     }
 
     private Map<String, Object> loginRequest() {
-        final Map<String, Object> properties = new HashMap<>();
-        properties.put(LOGINREQUEST_ACTION, "login");
+        final Map<String, Object> properties = new LinkedHashMap<>();
+        properties.put(LOGINREQUEST_ACTION, "request");
         properties.put(LOGINREQUEST_USERNAME, this.username);
         properties.put(LOGINREQUEST_LOGINPASSWORD, "");
         properties.put(LOGINREQUEST_CAPTCHA, "");
@@ -160,10 +166,10 @@ public class HnapClient {
     }
 
     private Map<String, Object> loginParameters(
-            final HnapSession hnapSession
+            final HnapSessionI hnapSession
     ) {
         final String loginPassword = hnapSession.getLoginPassword();
-        final Map<String, Object> loginParams = new HashMap<>();
+        final Map<String, Object> loginParams = new LinkedHashMap<>();
         loginParams.put("Action", "login");
         loginParams.put("Username", this.username);
         loginParams.put("LoginPassword", loginPassword.toUpperCase());
