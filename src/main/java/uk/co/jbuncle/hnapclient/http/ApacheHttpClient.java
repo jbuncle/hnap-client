@@ -19,7 +19,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
  *
  * @author James Buncle <jbuncle@hotmail.com>
  */
-public class HttpClient implements HttpClientI {
+public class ApacheHttpClient implements HttpClientI {
 
     @Override
     public String post(final String url, final Map<String, String> headers, final String body)

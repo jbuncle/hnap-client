@@ -3,8 +3,9 @@
  */
 package uk.co.jbuncle.hnapclient;
 
+import java.net.MalformedURLException;
 import java.net.URL;
-import uk.co.jbuncle.hnapclient.http.HttpClient;
+import uk.co.jbuncle.hnapclient.http.BasicHttpClient;
 import uk.co.jbuncle.hnapclient.http.HttpClientI;
 import uk.co.jbuncle.hnapclient.interfaces.HnapClientI;
 import uk.co.jbuncle.hnapclient.session.HnapSessionBuilder;
@@ -19,11 +20,12 @@ import uk.co.jbuncle.hnapclient.soap.BasicSoapClient;
 public class ClientBuilder {
 
     public HnapClientI createHnapClient(
-            final URL url,
+            final String host,
             final String username,
-            final String password) {
+            final String password) throws MalformedURLException {
 
-        final HttpClientI httpClient = new HttpClient();
+        final URL url = new URL("http://" + host + "/HNAP1");
+        final HttpClientI httpClient = new BasicHttpClient();
         final BasicSoapClient soapClient = new BasicSoapClient(httpClient);
         final TimestampProviderI timestampProvider = new TimestampProvider();
         final HnapSessionBuilder hnapSessionBuilder = new HnapSessionBuilder(timestampProvider, password);
