@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.net.URL;
 import java.util.LinkedHashMap;
+import uk.co.jbuncle.hnapclient.exceptions.HnapClientXmlException;
 import uk.co.jbuncle.hnapclient.response.DeviceSettingsI;
 import uk.co.jbuncle.hnapclient.response.DeviceSettingsParser;
 import uk.co.jbuncle.hnapclient.session.HnapSessionBuilder;
@@ -105,13 +106,15 @@ class HnapClient implements HnapClientI {
             final String method,
             final Map<String, Object> body
     ) throws HnapClientException {
+        
+        final String bodyXml = XmlToObject.toXml(body);
+        final String response = this.hnapRequest(hnapSession, method, bodyXml);
+
         try {
-            final String bodyXml = XmlToObject.toXml(body);
-            final String response = this.hnapRequest(hnapSession, method, bodyXml);
             return XmlToObject.fromXml(response);
         }
         catch (XMLException ex) {
-            throw new HnapClientException(ex);
+            throw new HnapClientXmlException(response, ex);
         }
     }
 
