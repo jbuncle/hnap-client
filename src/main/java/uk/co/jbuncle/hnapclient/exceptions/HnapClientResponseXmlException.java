@@ -8,11 +8,12 @@ import uk.co.jbuncle.hnapclient.util.xml.XMLException;
 /**
  * @author James Buncle <jbuncle@hotmail.com>
  */
-public class HnapClientXmlException extends HnapClientException {
+public class HnapClientResponseXmlException
+        extends HnapClientResponseException {
 
     private final String body;
 
-    public HnapClientXmlException(String body, XMLException cause) {
+    public HnapClientResponseXmlException(String body, XMLException cause) {
         super(cause);
         this.body = body;
     }

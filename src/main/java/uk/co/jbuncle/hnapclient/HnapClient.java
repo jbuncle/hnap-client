@@ -8,9 +8,10 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.w3c.dom.Document;
 import uk.co.jbuncle.hnapclient.exceptions.HnapAuthenticationException;
 import uk.co.jbuncle.hnapclient.exceptions.HnapClientException;
-import uk.co.jbuncle.hnapclient.exceptions.HnapClientXmlException;
+import uk.co.jbuncle.hnapclient.exceptions.HnapClientResponseXmlException;
 import uk.co.jbuncle.hnapclient.exceptions.HnapRequestException;
 import uk.co.jbuncle.hnapclient.interfaces.HnapClientI;
 import uk.co.jbuncle.hnapclient.response.DeviceSettingsI;
@@ -59,10 +60,17 @@ class HnapClient implements HnapClientI {
         final Map<String, String> headers = new HashMap<>();
         try {
             final String response = this.soapClient.soapGet(url, headers);
-            final Map<String, Object> responseProperties = XmlToObject.fromXml(response);
-            return DeviceSettingsParser.createFromResponse(responseProperties);
+
+            try {
+                final Map<String, Object> responseProperties = XmlToObject.fromXml(response);
+
+                return DeviceSettingsParser.createFromResponse(responseProperties);
+            }
+            catch (XMLException ex) {
+                throw new HnapClientResponseXmlException(response, ex);
+            }
         }
-        catch (XMLException | MalformedURLException | SoapException ex) {
+        catch (MalformedURLException | SoapException ex) {
             throw new HnapClientException(ex);
         }
     }
@@ -74,14 +82,9 @@ class HnapClient implements HnapClientI {
         headers.put("SOAPAction", "\"" + HnapClient.HNAP1_XMLNS + HnapClient.HNAP_LOGIN_METHOD + "\"");
 
         final String loginInitProperties = XmlToObject.toXml(this.loginRequest());
-        final String response = this.soapRequest(url, headers, HnapClient.HNAP_LOGIN_METHOD, loginInitProperties);
+        final Map<String, Object> response = this.soapRequest(url, headers, HnapClient.HNAP_LOGIN_METHOD, loginInitProperties);
 
-        final HnapSessionI session;
-        try {
-            session = this.hnapSessionBuilder.parseSession(response);
-        } catch (XMLException ex) {
-            throw new HnapClientXmlException(response, ex);
-        }
+        final HnapSessionI session = this.hnapSessionBuilder.parseSession(response);
 
         final Map<String, Object> loginProperties = this.loginParameters(session);
         final Map<String, Object> responseProperties = this.request(session, HnapClient.HNAP_LOGIN_METHOD, loginProperties);
@@ -106,14 +109,8 @@ class HnapClient implements HnapClientI {
     ) throws HnapClientException {
 
         final String bodyXml = XmlToObject.toXml(body);
-        final String response = this.hnapRequest(hnapSession, method, bodyXml);
 
-        try {
-            return XmlToObject.fromXml(response);
-        } 
-        catch (XMLException ex) {
-            throw new HnapClientXmlException(response, ex);
-        }
+        return this.hnapRequest(hnapSession, method, bodyXml);
     }
 
     /**
@@ -132,7 +129,7 @@ class HnapClient implements HnapClientI {
                 + "</" + action + ">";
     }
 
-    private String hnapRequest(
+    private final Map<String, Object> hnapRequest(
             final HnapSessionI hnapSession,
             final String method,
             final String body
@@ -164,37 +161,43 @@ class HnapClient implements HnapClientI {
         return loginParams;
     }
 
-    private String soapRequest(
+    private Map<String, Object> soapRequest(
             final URL url,
             final Map<String, String> headers,
             final String method,
             final String requestBody
     ) throws HnapClientException {
-        String responseBody = null;
 
         final String wrappedBody = this.addMethodWrapper(method, requestBody);
         try {
-            // Check response is valid XML
+            // Check request is valid XML
             XMLUtility.loadXML(wrappedBody);
         }
         catch (XMLException ex) {
-            throw new HnapRequestException("Request contains invalid XML", ex, requestBody, responseBody);
+            throw new HnapRequestException("Request contains invalid XML", ex, requestBody);
         }
 
+        final String responseBody = performRequest(url, method, headers, wrappedBody);
         try {
-            responseBody = this.soapClient.soapPost(url, HnapClient.HNAP1_XMLNS + method, headers, wrappedBody);
-        } 
+            final Document doc = XMLUtility.loadXML(responseBody);
+            return XmlToObject.fromXml(doc);
+        }
+        catch (XMLException ex) {
+            throw new HnapClientResponseXmlException(responseBody, ex);
+        }
+    }
+
+    private String performRequest(
+            final URL url,
+            final String method,
+            final Map<String, String> headers,
+            final String wrappedBody
+    ) throws HnapClientException {
+        try {
+            return this.soapClient.soapPost(url, HnapClient.HNAP1_XMLNS + method, headers, wrappedBody);
+        }
         catch (SoapException ex) {
             throw new HnapClientException(ex);
         }
-
-        try {
-            // Check response is valid XML
-            XMLUtility.loadXML(responseBody);
-        } 
-        catch (XMLException ex) {
-            throw new HnapClientXmlException(responseBody, ex);
-        }
-        return responseBody;
     }
 }

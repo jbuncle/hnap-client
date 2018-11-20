@@ -62,6 +62,8 @@ public class XMLUtility {
     }
 
     /**
+     * Get given nodes inner XML as string.
+     * 
      * http://stackoverflow.com/questions/3300839/get-a-nodes-inner-xml-as-string-in-java-dom
      *
      * @param node

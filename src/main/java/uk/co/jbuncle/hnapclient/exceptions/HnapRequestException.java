@@ -9,35 +9,28 @@ package uk.co.jbuncle.hnapclient.exceptions;
 public class HnapRequestException extends HnapClientException {
 
     private final String requestBody;
-    private final String responseBody;
 
     public HnapRequestException(
-            final String requestBody,
-            final String responseBody
+            final String requestBody
     ) {
         this.requestBody = requestBody;
-        this.responseBody = responseBody;
     }
 
     public HnapRequestException(
             final String message,
-            final String requestBody,
-            final String responseBody
+            final String requestBody
     ) {
         super(message);
         this.requestBody = requestBody;
-        this.responseBody = responseBody;
     }
 
     public HnapRequestException(
             final String message,
             final Throwable cause,
-            final String requestBody,
-            final String responseBody
+            final String requestBody
     ) {
         super(message, cause);
         this.requestBody = requestBody;
-        this.responseBody = responseBody;
     }
 
     public HnapRequestException(
@@ -47,15 +40,10 @@ public class HnapRequestException extends HnapClientException {
     ) {
         super(cause);
         this.requestBody = requestBody;
-        this.responseBody = responseBody;
     }
 
     public String getRequestBody() {
         return requestBody;
-    }
-
-    public String getResponseBody() {
-        return responseBody;
     }
 
 }

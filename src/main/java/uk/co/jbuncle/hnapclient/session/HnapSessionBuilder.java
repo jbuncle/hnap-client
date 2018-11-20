@@ -4,7 +4,11 @@
 package uk.co.jbuncle.hnapclient.session;
 
 import java.util.Map;
+import org.w3c.dom.Document;
+import uk.co.jbuncle.hnapclient.exceptions.HnapClientException;
+import uk.co.jbuncle.hnapclient.exceptions.HnapClientResponseXmlException;
 import uk.co.jbuncle.hnapclient.util.xml.XMLException;
+import uk.co.jbuncle.hnapclient.util.xml.XMLUtility;
 import uk.co.jbuncle.hnapclient.util.xml.XmlToObject;
 
 /**
@@ -27,8 +31,7 @@ public class HnapSessionBuilder {
         this.password = password;
     }
 
-    public HnapSessionI parseSession(final String body) throws XMLException {
-        final Map<String, Object> properties = XmlToObject.fromXml(body);
+    public HnapSessionI parseSession(final Map<String, Object> properties) {
         final String challenge = (String) properties.get(LOGINRESPONSE_CHALLENGE);
         final String publicKey = (String) properties.get(LOGINRESPONSE_PUBLICKEY);
         final String cookie = (String) properties.get(LOGINRESPONSE_COOKIE);

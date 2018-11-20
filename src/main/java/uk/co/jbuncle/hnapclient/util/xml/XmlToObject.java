@@ -11,14 +11,24 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
+ * Class for converting Maps to and from objects.
+ *
  * @author James Buncle <jbuncle@hotmail.com>
  */
 public class XmlToObject {
+    
+    public static Map<String, Object> fromXml(final Document doc)
+            throws XMLException {
+        
+        return (Map<String, Object>) fromXml(doc.getDocumentElement());
+    }
+
 
     public static Map<String, Object> fromXml(final String xmlString)
             throws XMLException {
         final Document doc = XMLUtility.loadXML(xmlString);
-        return (Map<String, Object>) fromXml(doc.getDocumentElement());
+        
+        return XmlToObject.fromXml(doc);
     }
 
     private static Object fromXml(final Element element) throws XMLException {
