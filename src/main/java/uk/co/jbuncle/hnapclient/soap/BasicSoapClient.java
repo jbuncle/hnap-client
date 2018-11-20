@@ -5,6 +5,8 @@ package uk.co.jbuncle.hnapclient.soap;
 
 import java.net.URL;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import uk.co.jbuncle.hnapclient.http.HttpClientI;
@@ -31,17 +33,35 @@ public class BasicSoapClient {
                 + "<soap:Body>" + payload + "</soap:Body></soap:Envelope>";
     }
 
-    public String soapPost(final URL url, final String soapAction,
-            final Map<String, String> headers, final String body) throws SoapException {
+    public String soapPost(
+            final URL url,
+            final String soapAction,
+            final Map<String, String> headers,
+            final String body
+    ) throws SoapException {
+        final String soapBody = this.soapBody(body);
+        headers.put("Content-Type", "text/xml; charset=utf-8");
+        headers.put("SOAPAction", '"' + soapAction + '"');
+
+        final String urlString = url.toString();
+
+        final String result;
         try {
-            final String soapBody = this.soapBody(body);
-            headers.put("Content-Type", "text/xml; charset=utf-8");
-            headers.put("SOAPAction", '"' + soapAction + '"');
-            String result = this.httpClient.post(url.toString(), headers, soapBody);
+            result = this.httpClient.post(urlString, headers, soapBody);
+        }
+        catch (HttpException ex) {
+            throw new SoapException("Request to '" + urlString + "' failed", ex);
+        }
+        
+        if (result.isEmpty()) {
+            throw new SoapException("Recieved empty response body from '" + urlString + "'");
+        }
+
+        try {
             return getSoapBody(result);
         }
-        catch (HttpException | XMLException ex) {
-            throw new SoapException(ex);
+        catch (XMLException ex) {
+            throw new SoapException("Response body from '" + urlString + "' is not valid XML'" + result + "'", ex);
         }
     }
 
