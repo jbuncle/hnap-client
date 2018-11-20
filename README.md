@@ -41,5 +41,5 @@ Java Library for interacting with devices using the [Home Network Administration
 
 ## Installation
 
-This library can be installed using JitPack (which supports Maven & Grade)
+This library can be installed using JitPack (which supports Maven & Gradle)
 https://jitpack.io/#jbuncle/hnap-client, as it isn't in standard repositories.
