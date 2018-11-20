@@ -4,7 +4,6 @@
 package uk.co.jbuncle.hnapclient.exceptions;
 
 /**
- *
  * @author James Buncle <jbuncle@hotmail.com>
  */
 public class HnapClientException extends Exception {

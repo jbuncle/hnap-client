@@ -14,7 +14,6 @@ import uk.co.jbuncle.hnapclient.session.TimestampProviderI;
 import uk.co.jbuncle.hnapclient.soap.BasicSoapClient;
 
 /**
- *
  * @author James Buncle <jbuncle@hotmail.com>
  */
 public class ClientBuilder {
@@ -22,13 +21,15 @@ public class ClientBuilder {
     public HnapClientI createHnapClient(
             final String host,
             final String username,
-            final String password) throws MalformedURLException {
+            final String password
+    ) throws MalformedURLException {
 
         final URL url = new URL("http://" + host + "/HNAP1");
         final HttpClientI httpClient = new BasicHttpClient();
         final BasicSoapClient soapClient = new BasicSoapClient(httpClient);
         final TimestampProviderI timestampProvider = new TimestampProvider();
         final HnapSessionBuilder hnapSessionBuilder = new HnapSessionBuilder(timestampProvider, password);
+        
         return new HnapClient(soapClient, hnapSessionBuilder, url, username);
     }
 }

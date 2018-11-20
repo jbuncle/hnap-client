@@ -4,7 +4,6 @@
 package uk.co.jbuncle.hnapclient.soap;
 
 /**
- *
  * @author James Buncle <jbuncle@hotmail.com>
  */
 public class SoapException extends Exception {
@@ -24,7 +23,8 @@ public class SoapException extends Exception {
         super(cause);
     }
 
-    public SoapException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    public SoapException(String message, Throwable cause, boolean enableSuppression,
+            boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 

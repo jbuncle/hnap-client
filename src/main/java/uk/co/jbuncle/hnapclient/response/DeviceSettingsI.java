@@ -7,7 +7,6 @@ import java.net.URL;
 import java.util.List;
 
 /**
- *
  * @author jbunc
  */
 public interface DeviceSettingsI {

@@ -16,14 +16,16 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 /**
- *
  * @author James Buncle <jbuncle@hotmail.com>
  */
 public class ApacheHttpClient implements HttpClientI {
 
     @Override
-    public String post(final String url, final Map<String, String> headers, final String body)
-            throws HttpException {
+    public String post(
+            final String url,
+            final Map<String, String> headers,
+            final String body
+    ) throws HttpException {
         try {
             final HttpPost post = new HttpPost(url);
 
@@ -38,8 +40,10 @@ public class ApacheHttpClient implements HttpClientI {
     }
 
     @Override
-    public String get(final String url, final Map<String, String> headers)
-            throws HttpException {
+    public String get(
+            final String url,
+            final Map<String, String> headers
+    ) throws HttpException {
         final HttpGet get = new HttpGet(url);
 
         return performRequest(headers, get);
@@ -60,28 +64,33 @@ public class ApacheHttpClient implements HttpClientI {
         }
     }
 
-    private void setRequestBody(final String body, final HttpPost httpPost) throws UnsupportedEncodingException {
-        final StringEntity entity = new StringEntity(body);
-        httpPost.setEntity(entity);
-    }
-
-    private static String getResponseBody(final HttpResponse response) throws UnsupportedOperationException, IOException {
+    private static String getResponseBody(
+            final HttpResponse response
+    ) throws UnsupportedOperationException, IOException {
         return IOUtils.toString(response.getEntity().getContent());
     }
 
-    private void checkResponseCode(final HttpResponse httpResponse) throws HttpResponseException {
+    private void checkResponseCode(
+            final HttpResponse httpResponse
+    ) throws HttpResponseException {
         if (httpResponse.getStatusLine().getStatusCode() != 200) {
-            throw new HttpResponseException(httpResponse.getStatusLine().getStatusCode(), httpResponse.getStatusLine().getReasonPhrase());
+            throw new HttpResponseException(httpResponse.getStatusLine().getStatusCode(),
+                    httpResponse.getStatusLine().getReasonPhrase());
         }
     }
 
-    private HttpResponse getResponse(final HttpRequestBase httpRequestBase) throws IOException {
+    private HttpResponse getResponse(
+            final HttpRequestBase httpRequestBase
+    ) throws IOException {
         org.apache.http.client.HttpClient client = new DefaultHttpClient();
         final HttpResponse response = client.execute(httpRequestBase);
         return response;
     }
 
-    private void addHeaders(final Map<String, String> headers, final HttpRequestBase httpRequestBase) {
+    private void addHeaders(
+            final Map<String, String> headers,
+            final HttpRequestBase httpRequestBase
+    ) {
         headers.entrySet().forEach((Map.Entry<String, String> header) -> {
             httpRequestBase.addHeader(header.getKey(), header.getValue());
         });

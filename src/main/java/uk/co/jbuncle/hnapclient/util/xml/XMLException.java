@@ -4,7 +4,6 @@
 package uk.co.jbuncle.hnapclient.util.xml;
 
 /**
- *
  * @author James Buncle <jbuncle@hotmail.com>
  */
 public class XMLException extends Exception {

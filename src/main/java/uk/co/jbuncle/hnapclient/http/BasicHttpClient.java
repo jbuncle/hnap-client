@@ -15,13 +15,15 @@ import java.util.Map;
 import org.apache.commons.io.IOUtils;
 
 /**
- *
  * @author James Buncle <jbuncle@hotmail.com>
  */
 public class BasicHttpClient implements HttpClientI {
 
     @Override
-    public String get(String url, Map<String, String> headers) throws HttpException {
+    public String get(
+            final String url,
+            final Map<String, String> headers
+    ) throws HttpException {
         try {
             String charset = "UTF-8";
 
@@ -46,14 +48,18 @@ public class BasicHttpClient implements HttpClientI {
         catch (IOException ex) {
             throw new HttpException(ex);
         }
-
     }
 
     @Override
-    public String post(String url, Map<String, String> headers, String body) throws HttpException {
+    public String post(
+            final String url,
+            final Map<String, String> headers,
+            final String body
+    ) throws HttpException {
         try {
 
-            final HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+            final HttpURLConnection conn = (HttpURLConnection) new URL(url)
+                    .openConnection();
 
             conn.setRequestMethod("POST");
             for (Map.Entry<String, String> entry : headers.entrySet()) {
@@ -69,7 +75,8 @@ public class BasicHttpClient implements HttpClientI {
                 wr.flush();
             }
 
-            try (BufferedReader rd = new BufferedReader(new java.io.InputStreamReader(conn.getInputStream()))) {
+            try (BufferedReader rd = new BufferedReader(
+                    new java.io.InputStreamReader(conn.getInputStream()))) {
                 // Read the response
                 StringBuilder sb = new StringBuilder();
                 String line;

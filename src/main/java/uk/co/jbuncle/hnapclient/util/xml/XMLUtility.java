@@ -3,19 +3,14 @@
  */
 package uk.co.jbuncle.hnapclient.util.xml;
 
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -36,7 +31,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
- *
  * @author James Buncle <jbuncle@hotmail.com>
  */
 public class XMLUtility {
@@ -55,9 +49,7 @@ public class XMLUtility {
         }
     }
 
-    public static Document loadXML(
-            final String xml
-    ) throws XMLException {
+    public static Document loadXML(final String xml) throws XMLException {
         try {
             final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             final DocumentBuilder builder = factory.newDocumentBuilder();
@@ -76,10 +68,8 @@ public class XMLUtility {
      * @return
      */
     public static String innerXml(final Node node) {
-        final DOMImplementationLS lsImpl = (DOMImplementationLS) node
-                .getOwnerDocument()
-                .getImplementation()
-                .getFeature("LS", "3.0");
+        final DOMImplementationLS lsImpl = (DOMImplementationLS) node.getOwnerDocument()
+                .getImplementation().getFeature("LS", "3.0");
         final LSSerializer lsSerializer = lsImpl.createLSSerializer();
         final DOMConfiguration c = lsSerializer.getDomConfig();
         c.setParameter("format-pretty-print", false);
@@ -92,9 +82,7 @@ public class XMLUtility {
         return sb.toString();
     }
 
-    public static Document marshall(
-            final Object object
-    ) throws XMLException {
+    public static Document marshall(final Object object) throws XMLException {
 
         try {
             final JAXBContext jaxbContext = JAXBContext.newInstance(object.getClass());
@@ -128,4 +116,5 @@ public class XMLUtility {
         }
         return childElements;
     }
+
 }

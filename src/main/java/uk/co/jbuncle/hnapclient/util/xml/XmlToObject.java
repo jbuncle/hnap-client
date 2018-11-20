@@ -11,12 +11,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- *
  * @author James Buncle <jbuncle@hotmail.com>
  */
 public class XmlToObject {
 
-    public static Map<String, Object> fromXml(final String xmlString) throws XMLException {
+    public static Map<String, Object> fromXml(final String xmlString)
+            throws XMLException {
         final Document doc = XMLUtility.loadXML(xmlString);
         return (Map<String, Object>) fromXml(doc.getDocumentElement());
     }
@@ -38,7 +38,8 @@ public class XmlToObject {
     private static void addToMap(
             final Map<String, Object> map,
             final String key,
-            final Object value) {
+            final Object value
+    ) {
         if (map.containsKey(key)) {
             Object currentValue = map.get(key);
             if (currentValue instanceof List) {
@@ -54,7 +55,6 @@ public class XmlToObject {
         } else {
             map.put(key, value);
         }
-
     }
 
     public static String toXml(Map<String, Object> map) {

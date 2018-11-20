@@ -6,7 +6,6 @@ package uk.co.jbuncle.hnapclient.exceptions;
 import uk.co.jbuncle.hnapclient.util.xml.XMLException;
 
 /**
- *
  * @author James Buncle <jbuncle@hotmail.com>
  */
 public class HnapClientXmlException extends HnapClientException {

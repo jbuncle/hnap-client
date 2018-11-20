@@ -6,24 +6,22 @@ package uk.co.jbuncle.hnapclient.session;
 import org.apache.commons.codec.digest.HmacUtils;
 
 /**
- *
  * @author James Buncle <jbuncle@hotmail.com>
  */
 class HnapSession implements HnapSessionI {
 
     private final TimestampProviderI timestampProvider;
+
     private final String challenge;
+
     private final String publicKey;
+
     private final String cookie;
+
     private final String password;
 
-    public HnapSession(
-            final TimestampProviderI timestampProviderI,
-            final String password,
-            final String challenge,
-            final String publicKey,
-            final String cookie
-    ) {
+    public HnapSession(final TimestampProviderI timestampProviderI, final String password,
+            final String challenge, final String publicKey, final String cookie) {
         this.timestampProvider = timestampProviderI;
         if (password == null || password.isEmpty()) {
             throw new IllegalArgumentException("password must be set");
@@ -49,7 +47,8 @@ class HnapSession implements HnapSessionI {
     }
 
     private String getPrivateKey() {
-        return this.hexHmacMd5(this.publicKey + this.password, this.challenge).toUpperCase();
+        return this.hexHmacMd5(this.publicKey + this.password, this.challenge)
+                .toUpperCase();
     }
 
     private String hexHmacMd5(final String key, final String data) {
