@@ -8,6 +8,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.LinkedList;
 import java.util.List;
+import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -16,6 +17,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -37,7 +39,7 @@ public class XMLUtility {
 
     public static String toString(final Node node) throws XMLException {
         try {
-            final TransformerFactory tf = TransformerFactory.newInstance();
+            final TransformerFactory tf = newSecureTransformerFactory();
             final Transformer transformer = tf.newTransformer();
             transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
             final StringWriter writer = new StringWriter();
@@ -51,7 +53,7 @@ public class XMLUtility {
 
     public static Document loadXML(final String xml) throws XMLException {
         try {
-            final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            final DocumentBuilderFactory factory = newSecureDocumentBuilderFactory();
             final DocumentBuilder builder = factory.newDocumentBuilder();
             final InputSource is = new InputSource(new StringReader(xml));
             return builder.parse(is);
@@ -92,7 +94,7 @@ public class XMLUtility {
             final Marshaller m = jaxbContext.createMarshaller();
             m.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
 
-            final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            final DocumentBuilderFactory dbf = newSecureDocumentBuilderFactory();
             dbf.setNamespaceAware(true);
             final DocumentBuilder db = dbf.newDocumentBuilder();
             final Document doc = db.newDocument();
@@ -104,6 +106,28 @@ public class XMLUtility {
         catch (ParserConfigurationException | JAXBException ex) {
             throw new XMLException(ex);
         }
+    }
+
+    private static DocumentBuilderFactory newSecureDocumentBuilderFactory() throws ParserConfigurationException {
+        final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+        factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+        factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+        factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        factory.setXIncludeAware(false);
+        factory.setExpandEntityReferences(false);
+        factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+        return factory;
+    }
+
+    private static TransformerFactory newSecureTransformerFactory() throws TransformerConfigurationException {
+        final TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        transformerFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+        return transformerFactory;
     }
 
     public static List<Element> getChildElements(final Node element) {
